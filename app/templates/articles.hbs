@@ -1,5 +1,18 @@
 <h1>Articles</h1>
 
-{{#each @model.data as |article|}}
-  <h2>{{article.title}}</h2>
-{{/each}}
+<article>
+  {{#each @model.data as |article|}}
+    <h2>{{article.title}}</h2>
+    <span>By {{article.author.firstName}} {{article.author.lastName}}</span>
+
+    <h3>Comments</h3>
+    {{#each article.comments as |comment|}}
+      <figure>
+        {{comment.body}}<br />
+        -
+        {{comment.author.firstName}}
+        {{comment.author.lastName}}
+      </figure>
+    {{/each}}
+  {{/each}}
+</article>

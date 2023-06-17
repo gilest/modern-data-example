@@ -26,10 +26,7 @@ const articlesResponse = {
             self: 'http://example.com/articles/1/relationships/comments',
             related: 'http://example.com/articles/1/comments',
           },
-          data: [
-            { type: 'comments', id: '5' },
-            { type: 'comments', id: '12' },
-          ],
+          data: [{ type: 'comments', id: '12' }],
         },
       },
       links: {
@@ -48,21 +45,6 @@ const articlesResponse = {
       },
       links: {
         self: 'http://example.com/people/9',
-      },
-    },
-    {
-      type: 'comments',
-      id: '5',
-      attributes: {
-        body: 'First!',
-      },
-      relationships: {
-        author: {
-          data: { type: 'people', id: '2' },
-        },
-      },
-      links: {
-        self: 'http://example.com/comments/5',
       },
     },
     {

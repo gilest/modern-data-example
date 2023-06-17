@@ -5,16 +5,55 @@ import Cache from '@ember-data/json-api';
 import { TrackedObject } from 'tracked-built-ins';
 
 class CustomSchemas {
-  attributesDefinitionFor() {
-    return {};
+  schemas = {
+    articles: {
+      relationships: {
+        author: {
+          name: 'author',
+          kind: 'belongsTo',
+          type: 'people',
+          options: {
+            async: false,
+            inverse: null,
+          },
+        },
+        comments: {
+          name: 'comments',
+          kind: 'hasMany',
+          type: 'comments',
+          options: {
+            async: false,
+            inverse: null,
+          },
+        },
+      },
+    },
+    comments: {
+      relationships: {
+        author: {
+          name: 'author',
+          kind: 'belongsTo',
+          type: 'people',
+          options: {
+            async: false,
+            inverse: null,
+          },
+        },
+      },
+    },
+    people: {},
+  };
+
+  attributesDefinitionFor(identifier) {
+    return this.schemas[identifier.type]?.attributes ?? {};
   }
 
-  doesTypeExist() {
-    return true;
+  doesTypeExist(type) {
+    return Boolean(this.schemas[type]);
   }
 
-  relationshipsDefinitionFor() {
-    return {};
+  relationshipsDefinitionFor(identifier) {
+    return this.schemas[identifier.type]?.relationships ?? {};
   }
 }
 
@@ -32,13 +71,37 @@ export default class extends Store {
     return new Cache(wrapper);
   }
 
+  _instantiateRelationships(identifier) {
+    const { cache, schema } = this;
+
+    const relationships = {};
+    for (const definition of Object.values(
+      schema.relationshipsDefinitionFor(identifier)
+    )) {
+      const { data } = cache.getRelationship(identifier, definition.name);
+
+      relationships[definition.name] =
+        definition.kind === 'hasMany'
+          ? data.map((identifier) => this.instantiateRecord(identifier))
+          : this.instantiateRecord(data);
+    }
+
+    return relationships;
+  }
+
   instantiateRecord(identifier) {
     const { cache, notifications } = this;
     const { type, id } = identifier;
 
     // create a TrackedObject with our attributes, id and type
     const attrs = cache.peek(identifier).attributes;
-    const data = Object.assign({}, attrs, { type, id });
+    const relationships = this._instantiateRelationships(identifier);
+
+    const data = {
+      ...attrs,
+      ...relationships,
+      ...{ type, id },
+    };
     const record = new TrackedObject(data);
 
     // update the TrackedObject whenever attributes change
