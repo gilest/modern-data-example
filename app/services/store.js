@@ -35,7 +35,7 @@ class CustomSchemas {
           kind: 'belongsTo',
           type: 'people',
           options: {
-            async: false,
+            async: true,
             inverse: null,
           },
         },
@@ -82,7 +82,9 @@ export default class extends Store {
 
       relationships[definition.name] =
         definition.kind === 'hasMany'
-          ? data.map((identifier) => this.instantiateRecord(identifier))
+          ? data
+              .map((identifier) => this.instantiateRecord(identifier))
+              .filter(Boolean)
           : this.instantiateRecord(data);
     }
 
@@ -94,7 +96,8 @@ export default class extends Store {
     const { type, id } = identifier;
 
     // create a TrackedObject with our attributes, id and type
-    const attrs = cache.peek(identifier).attributes;
+    const attrs = cache.peek(identifier)?.attributes ?? {};
+
     const relationships = this._instantiateRelationships(identifier);
 
     const data = {

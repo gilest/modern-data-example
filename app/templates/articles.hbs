@@ -10,8 +10,12 @@
       <figure>
         {{comment.body}}<br />
         -
-        {{comment.author.firstName}}
-        {{comment.author.lastName}}
+        {{#if comment.author.firstName}}
+          {{comment.author.firstName}}
+          {{comment.author.lastName}}
+        {{else}}
+          Unloaded person, id: {{comment.author.id}}
+        {{/if}}
       </figure>
     {{/each}}
   {{/each}}
